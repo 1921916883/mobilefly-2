@@ -7,13 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FLYLockFixModel.h"
 
 @interface FLYMyReserveTableViewCell : UITableViewCell
+
 @property (weak, nonatomic) IBOutlet UILabel *titleLab;
 @property (weak, nonatomic) IBOutlet UILabel *reserveTime;
 @property (weak, nonatomic) IBOutlet UIButton *mainBtn;
 @property (weak, nonatomic) IBOutlet UILabel *residueTime;
 @property (weak, nonatomic) IBOutlet UILabel *money;
 
+@property(nonatomic,strong) FLYLockFixModel *fixModel;
 
 @end

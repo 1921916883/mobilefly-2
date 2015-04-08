@@ -8,21 +8,20 @@
 
 #import "FLYBaseViewController.h"
 #import "PullingRefreshTableView.h"
+#import "FLYLockFixModel.h"
 
-@interface FLYMyReserveVC : FLYBaseViewController
+
+@interface FLYMyReserveVC : FLYBaseViewController<UITableViewDelegate,UITableViewDataSource,PullingRefreshTableViewDelegate>
 {
     //最后一次数据加载索引
     int _dataIndex;
     //数据是否全部加载完
     BOOL _isMore;
-
 }
-
-@property (strong,nonatomic) PullingRefreshTableView *mainTabView;
+@property (nonatomic ,strong)PullingRefreshTableView *tableView;
 //table数据
 @property (strong,nonatomic) NSMutableArray *datas;
 //下拉刷新
 @property (nonatomic) BOOL refreshing;
-
 
 @end

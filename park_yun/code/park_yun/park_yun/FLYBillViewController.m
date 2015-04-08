@@ -55,6 +55,7 @@
     }
 }
 
+//第一次加载
 -(void)requestBillData{
     [self showTimeoutView:NO];
     
@@ -83,7 +84,7 @@
 }
 
 
-
+//加载更多
 -(void)requestMoreBillData{
     //FLYMemberTraceModel
     
@@ -117,7 +118,7 @@
     }
 }
 
-
+//加载错误
 -(void)loadBillError:(BOOL)isFirst{
     if (isFirst) {
         [self showTimeoutView:YES];
@@ -126,6 +127,7 @@
     [FLYBaseUtil networkError];
 }
 
+//加载成功，处理数据
 - (void)loadBillData:(id)data{
     _dataIndex = _dataIndex + 20;
     [self hideHUD];
@@ -144,7 +146,7 @@
             NSMutableArray *traceList = [NSMutableArray arrayWithCapacity:traces.count];
             for (NSDictionary *traceDic in traces) {
                 FLYMemberTraceModel *traceModel = [[FLYMemberTraceModel alloc] initWithDataDic:traceDic];
-                [traceList addObject:traceModel];
+                [traceList addObject:traceModel];//?????
             }
             
             if (self.datas == nil) {
@@ -164,12 +166,12 @@
             [self.tableView reloadData];
         }
     }else{
-        NSString *msg = [data objectForKey:@"msg"];
+        NSString *msg = [data objectForKey:@"msg"];//在返回结果中没找到msg？？？？
         [self showAlert:msg];
     }
     
     
-    [self.tableView tableViewDidFinishedLoading];
+    [self.tableView tableViewDidFinishedLoading];//???/
     if (!_isMore && self.datas != nil && [self.datas count] > 0) {
         [self.tableView setReachedTheEnd:YES];
         [super showMessage:@"加载完成"];
@@ -232,7 +234,7 @@
     cell.showDate = YES;
     FLYMemberTraceModel *traceModel = [self.datas objectAtIndex:indexPath.row];
     cell.traceModel = traceModel;
-    
+    //nononononono？？？？？？？？
     if (indexPath.row != 0) {
         FLYMemberTraceModel *lastTraceModel = [self.datas objectAtIndex:(indexPath.row - 1)];
         

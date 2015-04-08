@@ -414,6 +414,7 @@
 		9F04CE921ACE688000FB45D1 /* LockListInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F04CE8D1ACE688000FB45D1 /* LockListInfo.m */; };
 		9F04CE931ACE688000FB45D1 /* LockListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F04CE8F1ACE688000FB45D1 /* LockListModel.m */; };
 		9F04CE941ACE688000FB45D1 /* LockListResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F04CE911ACE688000FB45D1 /* LockListResult.m */; };
+		9F1635DC1AD4FBAF0013CBED /* FLYLockFixModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F1635DB1AD4FBAF0013CBED /* FLYLockFixModel.m */; };
 		9F191F721AD3CAC800C1F595 /* FLYSubscribeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F191F711AD3CAC800C1F595 /* FLYSubscribeVC.m */; };
 		9F191F761AD3CF8100C1F595 /* libBaiduMobStat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74933A351A00C95F00E760CF /* libBaiduMobStat.a */; };
 		9F191F7F1AD3D1EE00C1F595 /* libbaidumapapi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7420ABA019611748000DD75F /* libbaidumapapi.a */; };
@@ -1766,6 +1767,8 @@
 		9F04CE8F1ACE688000FB45D1 /* LockListModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LockListModel.m; path = park_yun/Subscribe/Model/LockListModel.m; sourceTree = SOURCE_ROOT; };
 		9F04CE901ACE688000FB45D1 /* LockListResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LockListResult.h; path = park_yun/Subscribe/Model/LockListResult.h; sourceTree = SOURCE_ROOT; };
 		9F04CE911ACE688000FB45D1 /* LockListResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LockListResult.m; path = park_yun/Subscribe/Model/LockListResult.m; sourceTree = SOURCE_ROOT; };
+		9F1635DA1AD4FBAF0013CBED /* FLYLockFixModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLYLockFixModel.h; sourceTree = "<group>"; };
+		9F1635DB1AD4FBAF0013CBED /* FLYLockFixModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLYLockFixModel.m; sourceTree = "<group>"; };
 		9F191F701AD3CAC800C1F595 /* FLYSubscribeVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLYSubscribeVC.h; sourceTree = "<group>"; };
 		9F191F711AD3CAC800C1F595 /* FLYSubscribeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLYSubscribeVC.m; sourceTree = "<group>"; };
 		9F191F811AD3D36100C1F595 /* FLYBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLYBaseViewController.h; sourceTree = "<group>"; };
@@ -2554,6 +2557,8 @@
 				749964341A3AC48D0069F185 /* FLYMessageModel.m */,
 				74538A751A3FD0550085D9F6 /* FLYParkCardModel.h */,
 				74538A761A3FD0550085D9F6 /* FLYParkCardModel.m */,
+				9F1635DA1AD4FBAF0013CBED /* FLYLockFixModel.h */,
+				9F1635DB1AD4FBAF0013CBED /* FLYLockFixModel.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -4532,6 +4537,7 @@
 				9F04CE8A1ACE3D4E00FB45D1 /* FLYMyReserveVC.m in Sources */,
 				74415C3019861CEF005DD554 /* CJSONSerialization.m in Sources */,
 				74A2ABA71A007C310007EF51 /* SDWebImagePrefetcher.m in Sources */,
+				9F1635DC1AD4FBAF0013CBED /* FLYLockFixModel.m in Sources */,
 				745263B0196CE78800037E3E /* NSString+MD5.m in Sources */,
 				7402D68A1A3E7ECC004412A0 /* FLYCardParkViewController.m in Sources */,
 				74A60C2E196597580046457B /* DXAlertView.m in Sources */,

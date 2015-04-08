@@ -7,16 +7,16 @@
 //
 
 #import "FLYMyReserveVC.h"
-#import "FLYMyReserveTableViewCell.h"
+
 #import "FLYDataService.h"
+#import "FLYMyReserveTableViewCell.h"
+#import "FLYBaseUtil.h"
 
 
-@interface FLYMyReserveVC ()<UITableViewDelegate,UITableViewDataSource,PullingRefreshTableViewDelegate>
+
+@interface FLYMyReserveVC ()
 {
-    UIScrollView *scrollView;
-    NSMutableDictionary *infoResults;//请求结果
-    NSMutableArray *dataArr;
-
+    NSMutableDictionary *resultsDictionary;//请求的预约数据
 }
 
 @end
@@ -29,13 +29,20 @@
     // Do any additional setup after loading the view.
     
     self.title =@"我的预约";
-    scrollView =[[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight-64)];
-    scrollView .contentSize =CGSizeMake(ScreenWidth, 1000);
-    [self.view addSubview:scrollView];
-    [self creatTableView];
+    //表
+    self.tableView =[[PullingRefreshTableView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight - 20 - 44) pullingDelegate:self];
+    self.tableView.pullingDelegate=self;
+    self.tableView.dataSource = self;
+    self.tableView.delegate = self;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    self.tableView.hidden = YES;
+    self.tableView.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:self.tableView];
+    [self setExtraCellLineHidden:self.tableView];
+
     
-    [self prepareRequestParkListData];
-  }
+    
+     }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -51,104 +58,198 @@
     // Pass the selected object to the new view controller.
 }
 */
--(void)creatTableView
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    
-    self.mainTabView = [[PullingRefreshTableView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight - 20 - 44) pullingDelegate:self];
-    
-    self.mainTabView .delegate =self;
-    self.mainTabView.dataSource =self;
-    
-    [scrollView addSubview:self.mainTabView];
+    if (self.datas == nil || [self.datas count] == 0) {
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    }else{
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    }
 
+    return [self.datas count];
 }
-#pragma mark --taleView
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray *arr =[[infoResults objectForKey:@"result"]objectForKey:@"lockFixList"];
-    return arr.count;
-
-}
-
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-
-    static NSString *cellInditifier =@"cell";
-    FLYMyReserveTableViewCell *cell =[tableView dequeueReusableCellWithIdentifier:cellInditifier];
+    static NSString *cellIndifier = @"cell";
+    FLYMyReserveTableViewCell *cell =[tableView dequeueReusableCellWithIdentifier:cellIndifier];
     if (!cell)
     {
-        cell =[[[NSBundle mainBundle]loadNibNamed:@"FLYMyReserveTableViewCell" owner:nil options:nil]objectAtIndex:0];
-        
+        cell = [[[NSBundle mainBundle] loadNibNamed:@"FLYMyReserveTableViewCell" owner:self options:nil] lastObject];
     }
-    cell.titleLab.text =[[dataArr objectAtIndex:indexPath.row] objectForKey:@"parkName"];
-    cell.reserveTime .text=[[dataArr objectAtIndex:indexPath.row] objectForKey:@"fixPretime"];
-    cell.residueTime.text =[[dataArr objectAtIndex:indexPath.row] objectForKey:@"fixRemainingtime"];
-    cell.money.text =[[dataArr objectAtIndex:indexPath.row] objectForKey:@"fixPreamt"];
-
     
+    FLYLockFixModel *lockFixModel =[self.datas objectAtIndex:indexPath.row];
+    cell.fixModel = lockFixModel;
     
     return cell;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 80;
+    return 85;
 }
-
-#pragma  mark--请求停车场数据
--(void)prepareRequestParkListData
+#pragma mark - 数据请求
+//判断是否有网
+-(void)prepareRequestSubscribeData{
+    if ([FLYBaseUtil isEnableInternate]) {
+        [self showHUD:@"加载中" isDim:NO];
+        //[self requestBillData];
+    }else{
+        [self showTimeoutView:YES];
+        [self showToast:@"请打开网络"];
+    }
+}
+//发送请求
+-(void)RequestSubscribeData
 {
+    [self showTimeoutView:NO];
+    _isMore =NO;
+    _dataIndex=0;
+    self.datas=nil;
     
     NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
     NSString *token = [defaults stringForKey:@"token"];
     NSString *userid = [defaults stringForKey:@"memberId"];
     
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                 token,
-                                 @"token",
-                                 userid,
-                                 @"userid",
-                                 nil];
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                   token,
+                                   @"token",
+                                   userid,
+                                   @"userid",
+                                   nil];
     //防止循环引用
     __weak FLYMyReserveVC *ref = self;
-    [FLYDataService requestWithURL:kHttpQueryAppoinInfo params:dict httpMethod:@"post" completeBolck:^(id result)
-     {
-         [ref requestSucceed:result];
-        // NSLog(@"%@",result);
-     } errorBolck:^()
-     {
-         NSLog(@"请求失败");
-         [ref requestDataError];
-     }];
+    [FLYDataService requestWithURL:queryAppoinInfo_API params:params httpMethod:@"POST" completeBolck:^(id result){
+        resultsDictionary = [NSMutableDictionary dictionaryWithDictionary:result];
+        NSLog(@"成功%@",resultsDictionary);
+        [ref loadSubscribeData:result];
+        
+    } errorBolck:^(){
+        [ref loadSubscribeError:YES];
+        
+        
+    }];
+
+
 }
--(void)requestSucceed:(id)result
+//加载更多
+-(void)requestMoreSubscribeData
 {
-    infoResults = [NSMutableDictionary dictionaryWithDictionary:result];
-    NSString *statusStr = [infoResults objectForKey:@"flag"] ;
-    if ([statusStr isEqualToString:@"0"])
+    if (_isMore)
     {
+        _isMore =NO;
+        int start =_dataIndex;
+        NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+        NSString *token = [defaults stringForKey:@"token"];
+        NSString *userid = [defaults stringForKey:@"memberId"];
+        
+        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                       token,
+                                       @"token",
+                                       userid,
+                                       @"userid",
+                                       [NSString stringWithFormat:@"%d",start],
+                                       @"start",
+                                       nil];
+        //防止循环引用
+        __weak FLYMyReserveVC *ref = self;
+        [FLYDataService requestWithURL:queryAppoinInfo_API params:params httpMethod:@"POST" completeBolck:^(id result){
+            [ref loadSubscribeData:result];
+            
+        } errorBolck:^(){
+            [ref loadSubscribeError:NO];
+        }];
+    }else
+    {
+        [self.tableView tableViewDidFinishedLoadingWithMessage:nil];
+    }
+}
+
+//加载错误
+-(void)loadSubscribeError:(BOOL)isFirst{
+    if (isFirst) {
+        [self showTimeoutView:YES];
+    }
+    [self hideHUD];
+    [FLYBaseUtil networkError];
+}
+//加载成功，处理数据
+- (void)loadSubscribeData:(id)data
+{
+    _dataIndex=_dataIndex+20;
+    [self hideHUD];
+    [self.tableView setReachedTheEnd:NO];
+    NSString *flag =[resultsDictionary objectForKey:@"flag"];
+    if ([flag isEqualToString:kFlagYes]){
         NSLog(@"请求成功");
-        dataArr =[[infoResults objectForKey:@"result"]objectForKey:@"lockFixList"];
-        [self.mainTabView reloadData];
+        NSDictionary *result =[resultsDictionary objectForKey:@"result"];
+        if (result !=nil)
+        {
+            NSArray *lockFixList =[result objectForKey:@"lockFixList"];
+            if ([lockFixList count]>=20)
+            {
+                _isMore =YES;
+            }
+            
+            NSMutableArray *lockListMutableArray = [NSMutableArray arrayWithCapacity:lockFixList.count];
+            
+            for (NSDictionary *fixDic in lockFixList) {
+                //NSDictionary 转 Model
+                FLYLockFixModel *fixModel = [[FLYLockFixModel alloc] initWithDataDic:fixDic];
+                [lockListMutableArray addObject:fixModel];
+            }
+            
+            if (self.datas==nil)
+            {
+                self.datas =lockListMutableArray;
+            }else
+            {
+                [self.datas addObjectsFromArray:lockListMutableArray];
+            }
+            
+            if (self.datas != nil && [self.datas count] > 0) {
+                self.tableView.hidden = NO;
+                [self showNoDataView:NO];
+            }else{
+                self.tableView.hidden = YES;
+                [self showNoDataView:YES];
+            }
+            [self.tableView reloadData ];
+        }
+          
+        
+    }else
+    {
+        NSLog(@"请求失败");
+        NSString *msg = [data objectForKey:@"msg"];
+        [self showAlert:msg];
+
+    }
+    [self.tableView tableViewDidFinishedLoading];
+    if (!_isMore && self.datas != nil && [self.datas count] > 0) {
+        [self.tableView setReachedTheEnd:YES];
         [super showMessage:@"加载完成"];
     }
 }
--(void)requestDataError
-{
-        [self showTimeoutView:YES];//超时，显示图片
-        [self hideHUD];
-        [FLYBaseUtil networkError];
-    }
-#pragma mark ---上下拉动，加载数据
+#pragma mark - PullingRefreshTableViewDelegate
 //下拉开始
 - (void)pullingTableViewDidStartRefreshing:(PullingRefreshTableView *)tableView{
     self.refreshing = YES;
-    [self performSelector:@selector(prepareRequestParkListData) withObject:nil afterDelay:1.f];
+    [self performSelector:@selector(RequestSubscribeData) withObject:nil afterDelay:1.f];
 }
+
 //上拉加载数据
 - (void)pullingTableViewDidStartLoading:(PullingRefreshTableView *)tableView{
-    [self performSelector:@selector(prepareRequestParkListData) withObject:nil afterDelay:1.f];
+    [self performSelector:@selector(requestMoreSubscribeData) withObject:nil afterDelay:1.f];
 }
+
+//滑动中
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    
+    [self.tableView tableViewDidScroll:scrollView];
+}
+//结束滑动
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
+    [self.tableView tableViewDidEndDragging:scrollView];
+}
+
 
 @end
