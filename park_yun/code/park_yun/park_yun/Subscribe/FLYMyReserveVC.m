@@ -14,7 +14,6 @@
 @interface FLYMyReserveVC ()<UITableViewDelegate,UITableViewDataSource,PullingRefreshTableViewDelegate>
 {
     UIScrollView *scrollView;
-    UITableView *mainTabView ;
     NSMutableDictionary *infoResults;//请求结果
     NSMutableArray *dataArr;
 
@@ -34,7 +33,8 @@
     scrollView .contentSize =CGSizeMake(ScreenWidth, 1000);
     [self.view addSubview:scrollView];
     [self creatTableView];
-       [self prepareRequestParkListData];
+    
+    [self prepareRequestParkListData];
   }
 
 - (void)didReceiveMemoryWarning {
@@ -53,12 +53,13 @@
 */
 -(void)creatTableView
 {
-    mainTabView =[[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight-64) style:UITableViewStylePlain];
     
-    mainTabView .delegate =self;
-    mainTabView.dataSource =self;
+    self.mainTabView = [[PullingRefreshTableView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight - 20 - 44) pullingDelegate:self];
     
-    [scrollView addSubview:mainTabView];
+    self.mainTabView .delegate =self;
+    self.mainTabView.dataSource =self;
+    
+    [scrollView addSubview:self.mainTabView];
 
 }
 #pragma mark --taleView
@@ -118,7 +119,7 @@
      } errorBolck:^()
      {
          NSLog(@"请求失败");
-         [self loadDataError];
+         [ref requestDataError];
      }];
 }
 -(void)requestSucceed:(id)result
@@ -129,14 +130,14 @@
     {
         NSLog(@"请求成功");
         dataArr =[[infoResults objectForKey:@"result"]objectForKey:@"lockFixList"];
-        [mainTabView reloadData];
+        [self.mainTabView reloadData];
         [super showMessage:@"加载完成"];
+    }
 }
-}
--(void)loadDataError{
-    
-            [self showTimeoutView:YES];//超时，显示图片
-            [self hideHUD];
+-(void)requestDataError
+{
+        [self showTimeoutView:YES];//超时，显示图片
+        [self hideHUD];
         [FLYBaseUtil networkError];
     }
 #pragma mark ---上下拉动，加载数据

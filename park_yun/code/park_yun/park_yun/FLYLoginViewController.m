@@ -206,6 +206,7 @@
         NSDictionary *result = [data objectForKey:@"result"];
         if (result != nil) {
             NSDictionary *memberDic = [result objectForKey:@"member"];
+        
             FLYMemberModel *memberModel = [[FLYMemberModel alloc] initWithDataDic:memberDic];
             NSString *token = [result objectForKey:@"token"];
             
@@ -224,6 +225,8 @@
             [self dismissViewControllerAnimated:NO completion:NULL];
         }
     }else{
+        NSDictionary *result = [data objectForKey:@"result"];
+        NSLog(@"%@",result);
         NSString *msg = [data objectForKey:@"msg"];
         [self showAlert:msg];
     }

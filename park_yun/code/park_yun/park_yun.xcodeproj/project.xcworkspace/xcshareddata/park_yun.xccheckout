@@ -10,6 +10,8 @@
 	<string>park_yun</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>9C158CA22FE1A8B4F669253A26922BF53E43BD1D</key>
+		<string>https://github.com/1921916883/mobilefly-2.git</string>
 		<key>BF9683D7C102B7BDD58B322113E761276AFD27D1</key>
 		<string>https://github.com/mobilefly/park_yun.git</string>
 	</dict>
@@ -17,6 +19,8 @@
 	<string>code/park_yun/park_yun.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>9C158CA22FE1A8B4F669253A26922BF53E43BD1D</key>
+		<string>../../../../..</string>
 		<key>BF9683D7C102B7BDD58B322113E761276AFD27D1</key>
 		<string>../../../..</string>
 	</dict>
@@ -28,6 +32,14 @@
 	<string>BF9683D7C102B7BDD58B322113E761276AFD27D1</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>9C158CA22FE1A8B4F669253A26922BF53E43BD1D</string>
+			<key>IDESourceControlWCCName</key>
+			<string></string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>

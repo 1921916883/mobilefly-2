@@ -39,7 +39,9 @@
     UIButton *cityBtn;//城市按钮
     UIButton *areaBtn;//区域按钮
     UIButton *stopBtn;//停车场按钮
-    
+    NSString *lockCode;//
+    NSString *appointPrice;//
+    NSString *appointPretime;
     
     //下拉类型
     int _listType;
@@ -50,50 +52,21 @@
     
     //市区域ID
     NSString *_cityId;
-    
-    //区域ID
-    NSString *_areaId;
-    
     //停车场ID
     NSString *_parkId;
-    
-    NSMutableDictionary *resultsDictionary ;//停车场请求数据
-    //收费标准
-    int _selectIndex;
-
-    UIView *_parkDetailView;
-    //收费标准弹出界面
-    FLYParkCardDetailView *_detailView;
-    UILabel *_parkNameLabel;
-    UIView *_tariffView;
-    NSMutableArray *_btnArray;
-    UILabel *_tariffDetailLabel;
-    UILabel *_tariffTitleLabel;
-    UILabel *_tariffPriceLabel;
-    UIButton *_reduceButton;
-    UITextField *_numField;
-    UILabel *_totalPirceLabel;
-    UIButton *_shopButton;
-    UIButton *_buyButton;
-    UIButton *_increaseButton;
-    
+    //区域ID
+    NSString *_areaId;
     UIView *mainView;
-    
-    int currentMainBtn;
-    
-    int currentTimeBtn;
-    
-    UILabel *chooseLB;//预约车位号
-    UILabel *numberLB;//剩余预约车位
-    
-    LockListModel *lockListModel;
-    NSMutableDictionary *timeResults;//价格，时间
-    UILabel *moneyLB;
-    
-    NSString *lockCode;
-    NSString *appointPrice;
-    NSString *appointPretime;
-
+    NSMutableDictionary *resultsDictionary;//停车场请求的数据
+    NSMutableDictionary *lockListDataDic;//地锁列表请求的数据
+    NSMutableDictionary *queryAppointmentListDataDic;//价格，时间请求数据
+    UILabel *chooseLB;
+    int currentMainBtn;//虚拟地锁按钮
+    int currentTimeBtn;//虚拟预约时间按钮
+    UILabel *moneyLB;//费用
+    UILabel *numberLB;//剩余预约个数
+    NSString *parkId;
+    NSArray *LockListDataArr;//地锁列表请求的数据数组
 }
 @property(nonatomic,strong)UITableView *stopTableView;//停车场选择列表
 
@@ -111,7 +84,7 @@
 {
     [super viewDidLoad];
     
-   [self creatSubscribeParkView];
+   //[self creatSubscribeParkView];
     
     // Do any additional setup after loading the view.
     
@@ -294,9 +267,6 @@
     FLYMyReserveVC *myReserveVC =[FLYMyReserveVC new];
     [self.navigationController pushViewController:myReserveVC animated:NO];
     
-    
-    
-    
 }
 #pragma mark--StopTableView
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -325,6 +295,10 @@
        stopLab.text=cell.textLabel.text;
        [_stopTableView removeFromSuperview];
        [backView removeFromSuperview];
+    
+     parkId =[[[resultsDictionary objectForKey:@"result"]objectForKey:@"parkList"][indexPath.row]objectForKey:@"parkId"];
+    
+    [self LockListData];
 }
 - (void)showPicker:(NSMutableArray *)list{
     
@@ -460,13 +434,15 @@
     [FLYDataService requestWithURL:kHttpQueryParkLockListByRegion params:dict httpMethod:@"POST" completeBolck:^(id result)
     {
      
-        resultsDictionary = [NSMutableDictionary dictionaryWithDictionary:result];
+       resultsDictionary = [NSMutableDictionary dictionaryWithDictionary:result];
         NSLog(@"成功%@",resultsDictionary);
         NSString *statusStr = [resultsDictionary objectForKey:@"flag"] ;
         if ([statusStr isEqualToString:@"0"])
         {
+           
             NSLog(@"请求成功");
             [self creatParkView];//调用--创建停车场列表
+            
           }
         
     } errorBolck:^()
@@ -476,9 +452,7 @@
     }];
 }
 
-
-
-//停车场详情
+#pragma mark ----停车场数据列表请求
 -(void)creatSubscribeParkView
 {
     mainView =[[UIView alloc]init];
@@ -504,7 +478,7 @@
     lineView.backgroundColor =Color(237, 237, 237, 1);
     [mainView addSubview:lineView];
     
-    chooseLB =[[UILabel alloc]initWithFrame:CGRectMake(10, headerLab.frame.size.height+lineView.frame.size.height, ScreenWidth-20, 30)];
+  chooseLB =[[UILabel alloc]initWithFrame:CGRectMake(10, headerLab.frame.size.height+lineView.frame.size.height, ScreenWidth-20, 30)];
     chooseLB.font=[UIFont systemFontOfSize:15];
     chooseLB.textAlignment =NSTextAlignmentLeft;
     [mainView addSubview:chooseLB];
@@ -516,7 +490,7 @@
     [mainView addSubview:scroller];
     
     
-    for (int i=0; i<5; i++)
+    for (int i=0; i<LockListDataArr.count; i++)
     {
         UIButton *mainBtn =[[UIButton alloc]initWithFrame:CGRectMake(10+i%5*90, 0, 80, 60)];
         mainBtn.layer.borderWidth=1;
@@ -530,10 +504,27 @@
         UILabel *textLab =[[UILabel alloc]initWithFrame:CGRectMake(0, 15, 80, 10)];
         textLab.textAlignment =NSTextAlignmentCenter;
         textLab.font =[UIFont systemFontOfSize:15];
-        textLab.text=@"空闲";
+        [mainBtn addSubview:textLab];
+        if ([[[LockListDataArr objectAtIndex:i]objectForKey:@"lockStatus"] isEqualToString:@"0"]) {
+            textLab.text=@"可预约";
+            textLab.textColor =Color(63, 110, 117, 1);
+        }else if ([[[LockListDataArr objectAtIndex:i]objectForKey:@"lockStatus"] isEqualToString:@"1"])
+        {
+            textLab.text=@"占用";
+            textLab.textColor =Color(196, 26, 22, 1);
+            UIButton *btn= (UIButton *)[textLab superview];
+            btn.enabled=NO;
+        }else if([[[LockListDataArr objectAtIndex:i]objectForKey:@"lockStatus"] isEqualToString:@"2"]){
+             textLab.text=@"维修中";
+            textLab.textColor =Color(242, 241, 118, 1);
+            UIButton *btn= (UIButton *)[textLab superview];
+            btn.enabled=NO;
+
+        }
+        
          [mainBtn addSubview:textLab];
         UILabel *numerLab =[[UILabel alloc]initWithFrame:CGRectMake(0, textLab.frame.origin.y+textLab.frame.size.height+15, 80, 12)];
-        numerLab.text=@"222";
+        numerLab.text=[[LockListDataArr objectAtIndex:i]objectForKey:@"lockCode"];
         numerLab.textAlignment =NSTextAlignmentCenter;
         numerLab.font =[UIFont systemFontOfSize:12];
         numerLab.textColor=[UIColor orangeColor];
@@ -550,14 +541,15 @@
     secondLineView.backgroundColor =Color(237, 237, 237, 1);
     [mainView addSubview:secondLineView];
     
-    NSArray *arr=[[timeResults objectForKey:@"result"]objectForKey:@"appointList"];
+   
     //横向滑动视图--时间
     UIScrollView *timeScroller=[[UIScrollView alloc]initWithFrame:CGRectMake(0,secondLineView.frame.origin.y+9, ScreenWidth, 35)];
     timeScroller.contentSize=CGSizeMake(2*90+10, 35);
     timeScroller .showsHorizontalScrollIndicator=NO;
     [mainView addSubview:timeScroller];
     
-    for (int i=0; i<2; i++)
+    NSArray *arr=[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"];
+    for (int i=0; i<arr.count; i++)
     {
         UIButton *timeBtn =[[UIButton alloc]initWithFrame:CGRectMake(10+i%5*90, 5, 80, 25)];
         timeBtn.layer.borderWidth=1;
@@ -572,7 +564,8 @@
         }
        
         timeBtn.layer.cornerRadius =3;
-         [timeBtn setTitle:@"预约60分钟" forState:UIControlStateNormal];
+        
+         [timeBtn setTitle:[NSString stringWithFormat:@"预约%@分钟",[[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"][i] objectForKey:@"appointTime"]] forState:UIControlStateNormal];
         timeBtn.titleLabel.font=[UIFont systemFontOfSize:13];
         [timeBtn setTitleColor:[UIColor orangeColor] forState:UIControlStateNormal];
         [timeBtn addTarget:self action:@selector(timeBtnClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -582,17 +575,21 @@
         
         currentTimeBtn=100;
     }
+    appointPretime=[[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"][0] objectForKey:@"appointTime"];
+    
     UILabel *priceLB=[[UILabel alloc]initWithFrame:CGRectMake(10, timeScroller.frame.size.height+timeScroller.frame.origin.y, 100, 20)];
     priceLB.text=@"预约价格：";
     priceLB.font=[UIFont systemFontOfSize:14];
     [mainView addSubview:priceLB];
     
     moneyLB=[[UILabel alloc]initWithFrame:CGRectMake(ScreenWidth-120, priceLB.frame.origin.y, 110, 20)];
-    moneyLB.text=@"$6";
+    moneyLB.text=[NSString stringWithFormat:@"¥%d",[[[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"][0]objectForKey:@"appointPrice"] intValue]/100];
     moneyLB.textColor=[UIColor orangeColor];
     moneyLB.textAlignment=NSTextAlignmentRight;
     moneyLB.font=[UIFont systemFontOfSize:13];
     [mainView addSubview:moneyLB];
+    
+    appointPrice=[[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"][0]objectForKey:@"appointPrice"];
     
     //分隔线
     UIView * thirdlyLineView=[[UIView alloc]initWithFrame:CGRectMake(0, priceLB.frame.origin.y+priceLB.frame.size.height+3, ScreenWidth, 1)];
@@ -600,7 +597,7 @@
     [mainView addSubview:thirdlyLineView];
     
     numberLB=[[UILabel alloc]initWithFrame:CGRectMake(10, thirdlyLineView.frame.origin.y+6, 200, 20)];
-    numberLB.text=@"5";
+    numberLB.text=[NSString stringWithFormat:@"剩余车位：%@",[[lockListDataDic objectForKey:@"result"]objectForKey:@"count"]];
     numberLB.font=[UIFont systemFontOfSize:14];
     [mainView addSubview:numberLB];
     
@@ -618,6 +615,14 @@
 -(void)saveBtnClick:(UIButton *)sender
 {
     NSLog(@"立即预定");
+    if (lockCode==nil)
+    {
+        [self showToast:@"请选择地锁"];
+    }else
+    {
+        [self appointLockByAp];
+    }
+    
    
 }
 -(void)timeBtnClick:(UIButton *)sender
@@ -627,6 +632,7 @@
     btn.layer.borderColor=[UIColor lightGrayColor].CGColor;
     sender.layer.borderColor=Color(196, 26, 22, 1).CGColor;
     currentTimeBtn=sender.tag;
+    appointPretime=[[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"][sender.tag-100] objectForKey:@"appointTime"];
     
     
 }
@@ -641,9 +647,166 @@
     
     UILabel *lab=(UILabel *)[self.view viewWithTag:sender.tag+100];
     chooseLB.text=[NSString stringWithFormat:@"选择预约车位：%@",lab.text];
+    
+    lockCode=lab.text;
 }
 
+#pragma mark ----地锁列表数据请求
+-(void)LockListData
+{
+   
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSString *token = [defaults stringForKey:@"token"];
+    NSString *userid = [defaults stringForKey:@"memberId"];
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 token,
+                                 @"token",
+                                 userid,
+                                 @"userid",
+                                 parkId,
+                                 @"parkId",
+                                 nil];
+    //防止循环引用
+    __weak FLYSubscribeVC *ref = self;
+    [FLYDataService requestWithURL:getLockList_API params:dict httpMethod:@"POST" completeBolck:^(id result)
+     {
+         NSString *str=[result JSONString];
+         lockListDataDic = [NSMutableDictionary dictionaryWithDictionary:result];
+         NSLog(@"成功%@",lockListDataDic);
+         NSString *statusStr = [lockListDataDic objectForKey:@"flag"] ;
+         if ([statusStr isEqualToString:@"0"])
+         {
+             NSLog(@"请求成功");
+             LockListDataArr =[[lockListDataDic objectForKey:@"result"]objectForKey:@"lockList"];
+             [self queryAppointmentListData];
+             
+         }
+         
+     } errorBolck:^()
+     {
+         NSLog(@"请求失败");
+         
+     }];
+}
 
+#pragma mark ----价格 时间数据请求
+-(void)queryAppointmentListData
+{
+    
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSString *token = [defaults stringForKey:@"token"];
+    NSString *userid = [defaults stringForKey:@"memberId"];
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 token,
+                                 @"token",
+                                 userid,
+                                 @"userid",
+                                 parkId,
+                                 @"parkId",
+                                 nil,
+                                 @"count",
+                                 nil,
+                                 @"start",
+                                 nil];
+    //防止循环引用
+    __weak FLYSubscribeVC *ref = self;
+    [FLYDataService requestWithURL:queryAppointmentList_API params:dict httpMethod:@"POST" completeBolck:^(id result)
+     {
+         NSString *str=[result JSONString];
+         queryAppointmentListDataDic = [NSMutableDictionary dictionaryWithDictionary:result];
+         NSString *statusStr = [queryAppointmentListDataDic objectForKey:@"flag"] ;
+         if ([statusStr isEqualToString:@"0"])
+         {
+             NSLog(@"请求成功");
+             [self creatSubscribeParkView];//调用--停车预约视图
+          }
+         
+     } errorBolck:^()
+     {
+         NSLog(@"请求失败");
+         
+     }];
+}
+#pragma mark ----立即预约
+-(void)appointLockByAp
+{
+    
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSString *token = [defaults stringForKey:@"token"];
+    NSString *userid = [defaults stringForKey:@"memberId"];
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 token,
+                                 @"token",
+                                 userid,
+                                 @"userid",
+                                 lockCode,
+                                 @"lockAp",
+                                 appointPrice,
+                                 @"appointPrice",
+                                 appointPretime,
+                                 @"appointPretime",
+                                 nil];
+    //防止循环引用
+    __weak FLYSubscribeVC *ref = self;
+    [FLYDataService requestWithURL:appointLockByAp_API params:dict httpMethod:@"POST" completeBolck:^(id result)
+     {
+         NSString *str=[result JSONString];
+         NSMutableDictionary *appointLockByApDic = [NSMutableDictionary dictionaryWithDictionary:result];
+         NSString *statusStr = [appointLockByApDic objectForKey:@"flag"] ;
+         if ([statusStr isEqualToString:@"0"])
+         {
+             NSLog(@"请求成功");
+             [self switchLock];
+         }
+         
+     } errorBolck:^()
+     {
+         NSLog(@"请求失败");
+         
+     }];
+}
+-(void)switchLock
+{
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSString *token = [defaults stringForKey:@"token"];
+    NSString *userid = [defaults stringForKey:@"memberId"];
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 token,
+                                 @"token",
+                                 userid,
+                                 @"userid",
+                                 @"0",
+                                 @"lockFlag",
+                                 lockCode,
+                                 @"lockCode",
+                                 nil];
+    //防止循环引用
+    __weak FLYSubscribeVC *ref = self;
+    [FLYDataService requestWithURL:switchLock_API params:dict httpMethod:@"POST" completeBolck:^(id result)
+     {
+         NSString *str=[result JSONString];
+         NSMutableDictionary *switchLockDic = [NSMutableDictionary dictionaryWithDictionary:result];
+         NSString *statusStr = [switchLockDic objectForKey:@"flag"] ;
+         if ([statusStr isEqualToString:@"0"])
+         {
+             NSLog(@"请求成功");
+             [self showToast:@"预约成功"];
+             [self.navigationController popViewControllerAnimated:YES];
+         }else
+         {
+             [self showToast:[switchLockDic objectForKey:@"msg"]];
+         }
+         
+     } errorBolck:^()
+     {
+         NSLog(@"请求失败");
+         
+     }];
+}
 
 
 @end

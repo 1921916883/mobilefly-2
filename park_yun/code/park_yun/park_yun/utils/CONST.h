@@ -26,11 +26,13 @@
 #define kHttpDomain @"http://192.168.110.155:8080/park_service"
 #pragma mark-------车辆预约------------------------------------------------------------------------
 //地锁列表数据
-#define getLockList_API [NSString stringWithFormat:@"%@%@",kHttpDomain,@"/member/getLockList.json"]
+#define getLockList_API @"/member/getLockList.json"
 //获取时间，价格
-#define queryAppointmentList_API [NSString stringWithFormat:@"%@%@",kHttpDomain,@"/member/queryAppointmentList.json"]
+#define queryAppointmentList_API @"/member/queryAppointmentList.json"
 //立即预约
-#define appointLockByAp_API [NSString stringWithFormat:@"%@%@",kHttpDomain,@"/member/appointLockByAp.json"]
+#define appointLockByAp_API @"/member/appointLockByAp.json"
+//地锁开关
+#define switchLock_API @"/member/switchLock.json"
 //获取预约内容
 #define queryAppoinInfo_API [NSString stringWithFormat:@"%@%@",kHttpDomain,@"/member/queryAppoinInfo.json"]
 
