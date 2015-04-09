@@ -673,12 +673,12 @@
      {
          NSString *str=[result JSONString];
          lockListDataDic = [NSMutableDictionary dictionaryWithDictionary:result];
-         NSLog(@"成功%@",lockListDataDic);
+         LockListDataArr =(NSArray *)[[lockListDataDic objectForKey:@"result"]objectForKey:@"lockList"];
          NSString *statusStr = [lockListDataDic objectForKey:@"flag"] ;
          if ([statusStr isEqualToString:@"0"])
          {
              NSLog(@"请求成功");
-             LockListDataArr =[[lockListDataDic objectForKey:@"result"]objectForKey:@"lockList"];
+             
              [self queryAppointmentListData];
              
          }
@@ -759,46 +759,12 @@
          if ([statusStr isEqualToString:@"0"])
          {
              NSLog(@"请求成功");
-             [self switchLock];
-         }
-         
-     } errorBolck:^()
-     {
-         NSLog(@"请求失败");
-         
-     }];
-}
--(void)switchLock
-{
-    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
-    NSString *token = [defaults stringForKey:@"token"];
-    NSString *userid = [defaults stringForKey:@"memberId"];
-    
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                 token,
-                                 @"token",
-                                 userid,
-                                 @"userid",
-                                 @"0",
-                                 @"lockFlag",
-                                 lockCode,
-                                 @"lockCode",
-                                 nil];
-    //防止循环引用
-    __weak FLYSubscribeVC *ref = self;
-    [FLYDataService requestWithURL:switchLock_API params:dict httpMethod:@"POST" completeBolck:^(id result)
-     {
-         NSString *str=[result JSONString];
-         NSMutableDictionary *switchLockDic = [NSMutableDictionary dictionaryWithDictionary:result];
-         NSString *statusStr = [switchLockDic objectForKey:@"flag"] ;
-         if ([statusStr isEqualToString:@"0"])
-         {
-             NSLog(@"请求成功");
-             [self showToast:@"预约成功"];
+              [self showToast:@"立即预定成功"];
              [self.navigationController popViewControllerAnimated:YES];
+//             [self switchLock];
          }else
          {
-             [self showToast:[switchLockDic objectForKey:@"msg"]];
+             
          }
          
      } errorBolck:^()
@@ -807,6 +773,5 @@
          
      }];
 }
-
 
 @end

@@ -21,9 +21,9 @@
 //linux
 //#define kHttpDomain @"http://112.124.57.167:8080/park_service"
 //阿里云服务器2
-//#define kHttpDomain @"http://121.40.205.111:8080/park_service"
+#define kHttpDomain @"http://121.40.205.111:8080/park_service"
 //小朱
-#define kHttpDomain @"http://192.168.110.155:8080/park_service"
+//#define kHttpDomain @"http://192.168.110.155:8080/park_service"
 #pragma mark-------车辆预约------------------------------------------------------------------------
 //地锁列表数据
 #define getLockList_API @"/member/getLockList.json"
@@ -34,7 +34,7 @@
 //地锁开关
 #define switchLock_API @"/member/switchLock.json"
 //获取预约内容
-#define queryAppoinInfo_API [NSString stringWithFormat:@"%@%@",kHttpDomain,@"/member/queryAppoinInfo.json"]
+#define queryAppoinInfo_API @"/member/queryAppoinInfo.json"
 
 //------停车场-----
 //周边停车场查询

@@ -40,7 +40,7 @@
     [self.view addSubview:self.tableView];
     [self setExtraCellLineHidden:self.tableView];
 
-    
+    [self prepareRequestSubscribeData];
     
      }
 
@@ -58,6 +58,7 @@
     // Pass the selected object to the new view controller.
 }
 */
+
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (self.datas == nil || [self.datas count] == 0) {
@@ -76,6 +77,9 @@
     {
         cell = [[[NSBundle mainBundle] loadNibNamed:@"FLYMyReserveTableViewCell" owner:self options:nil] lastObject];
     }
+    [cell.mainBtn addTarget:self action:@selector(mainBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.mainBtn.tag=indexPath.row+100;
+    
     
     FLYLockFixModel *lockFixModel =[self.datas objectAtIndex:indexPath.row];
     cell.fixModel = lockFixModel;
@@ -91,7 +95,7 @@
 -(void)prepareRequestSubscribeData{
     if ([FLYBaseUtil isEnableInternate]) {
         [self showHUD:@"加载中" isDim:NO];
-        //[self requestBillData];
+        [self RequestSubscribeData];
     }else{
         [self showTimeoutView:YES];
         [self showToast:@"请打开网络"];
@@ -148,10 +152,11 @@
                                        @"userid",
                                        [NSString stringWithFormat:@"%d",start],
                                        @"start",
-                                       nil];
+                                            nil];
         //防止循环引用
         __weak FLYMyReserveVC *ref = self;
-        [FLYDataService requestWithURL:queryAppoinInfo_API params:params httpMethod:@"POST" completeBolck:^(id result){
+        [FLYDataService requestWithURL:queryAppoinInfo_API params:params httpMethod:@"POST" completeBolck:^(id result)
+        {
             [ref loadSubscribeData:result];
             
         } errorBolck:^(){
@@ -250,6 +255,67 @@
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
     [self.tableView tableViewDidEndDragging:scrollView];
 }
+//关闭地锁请求
+-(void)switchLock:(NSString *)lockCode lockFlag:(NSString *)lockFlag
+{
+    NSUserDefaults * defaults = [NSUserDefaults standardUserDefaults];
+    NSString *token = [defaults stringForKey:@"token"];
+    NSString *userid = [defaults stringForKey:@"memberId"];
 
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 token,
+                                 @"token",
+                                 userid,
+                                 @"userid",
+                                 lockFlag,
+                                 @"lockFlag",
+                                 lockCode,
+                                 @"lockCode",
+                                 nil];
+    //防止循环引用
+    __weak FLYMyReserveVC *ref = self;
+    [FLYDataService requestWithURL:switchLock_API params:dict httpMethod:@"POST" completeBolck:^(id result)
+     {
+         NSString *str=[result JSONString];
+         NSMutableDictionary *switchLockDic = [NSMutableDictionary dictionaryWithDictionary:result];
+         NSString *statusStr = [switchLockDic objectForKey:@"flag"] ;
+         if ([statusStr isEqualToString:@"0"])
+         {
+             NSLog(@"请求成功");
+             [self showToast:@"开关地锁成功"];
+             [self.navigationController popViewControllerAnimated:YES];
+         }else
+         {
+              [self showToast:@"开关地锁失败"];
+             //[self showToast:[switchLockDic objectForKey:@"msg"]];
+         }
+
+     } errorBolck:^()
+     {
+         NSLog(@"请求失败");
+
+     }];
+}
+
+-(void)mainBtnClick:(UIButton *)sender
+{
+    static BOOL isChage;
+    if (!isChage)
+    {
+        [sender setTitle:@"车走了" forState:UIControlStateNormal];
+        [self switchLock:[[self.datas objectAtIndex:sender.tag-100]objectForKey:@"fixLockcode"]lockFlag:@"1"];
+    }else
+    {
+        [sender setTitle:@"车到了" forState:UIControlStateNormal];
+        [self switchLock:[[self.datas objectAtIndex:sender.tag-100]objectForKey:@"fixLockcode"]lockFlag:@"0"];
+    }
+    isChage=!isChage;
+    
+    
+    
+    
+    
+    
+}
 
 @end

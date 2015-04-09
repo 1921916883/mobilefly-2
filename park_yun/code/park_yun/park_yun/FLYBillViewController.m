@@ -166,7 +166,7 @@
             [self.tableView reloadData];
         }
     }else{
-        NSString *msg = [data objectForKey:@"msg"];//在返回结果中没找到msg？？？？
+        NSString *msg = [data objectForKey:@"msg"];
         [self showAlert:msg];
     }
     
@@ -234,7 +234,7 @@
     cell.showDate = YES;
     FLYMemberTraceModel *traceModel = [self.datas objectAtIndex:indexPath.row];
     cell.traceModel = traceModel;
-    //nononononono？？？？？？？？
+    
     if (indexPath.row != 0) {
         FLYMemberTraceModel *lastTraceModel = [self.datas objectAtIndex:(indexPath.row - 1)];
         

@@ -421,11 +421,6 @@
 //    }else
     if (indexPath.row ==0)
     {
-        cell.imageView.image = [UIImage imageNamed:@"icon_membercard.png"];
-        cell.textLabel.text = @"车位预约";
-    }
-    else if(indexPath.row == 1)
-    {
         cell.imageView.image = [UIImage imageNamed:@"icon_message.png"];
         cell.textLabel.text = @"消息中心";
         
@@ -439,9 +434,10 @@
         
         [badgeView addSubview:msgBadgeBtn];
         [cell.contentView addSubview:badgeView];
-        
-        
-    }else if(indexPath.row == 2){
+ 
+    }
+    else if(indexPath.row == 1)
+    {
         cell.imageView.image = [UIImage imageNamed:@"icon_coupon.png"];
         cell.textLabel.text = @"我的红包";
         
@@ -454,10 +450,15 @@
         couponBadgeBtn.titleLabel.font = [UIFont systemFontOfSize:13.0f];
         [badgeView addSubview:couponBadgeBtn];
         [cell.contentView addSubview:badgeView];
-
-    }else if(indexPath.row == 3){
+  
+        
+    }else if(indexPath.row == 2){
         cell.imageView.image = [UIImage imageNamed:@"icon_membercard.png"];
         cell.textLabel.text = @"购买畅停卡";
+    }else if(indexPath.row == 3){
+        
+        cell.imageView.image = [UIImage imageNamed:@"icon_membercard.png"];
+        cell.textLabel.text = @"车位预约";
     }
     return cell;
 }
@@ -468,9 +469,10 @@
 //    }else
     if (indexPath.row ==0)
     {
-        if ([self checkUserLogin]) {
-            FLYSubscribeVC *SubscribeVC = [[FLYSubscribeVC alloc] init];
-            [self.navigationController pushViewController:SubscribeVC animated:NO];
+        if ([self checkUserLogin])
+        {
+            FLYMessageViewController *messageController = [[FLYMessageViewController alloc] init];
+            [self.navigationController pushViewController:messageController animated:NO];
         }
 
     }
@@ -478,23 +480,25 @@
     {
         if ([self checkUserLogin])
         {
-            FLYMessageViewController *messageController = [[FLYMessageViewController alloc] init];
-            [self.navigationController pushViewController:messageController animated:NO];
-        }
-    }else if(indexPath.row == 2)
-    {
-        if ([self checkUserLogin])
-        {
             FLYCouponViewController *couponController = [[FLYCouponViewController alloc] init];
             [self.navigationController pushViewController:couponController animated:NO];
         }
-    }else if(indexPath.row == 3)
+  
+     }else if(indexPath.row == 2)
     {
         if ([self checkUserLogin])
         {
             FLYParkCardViewController *parkCardController = [[FLYParkCardViewController alloc] init];
             [self.navigationController pushViewController:parkCardController animated:NO];
         }
+  
+     }else if(indexPath.row == 3)
+      {
+         if ([self checkUserLogin]) {
+            FLYSubscribeVC *SubscribeVC = [[FLYSubscribeVC alloc] init];
+            [self.navigationController pushViewController:SubscribeVC animated:NO];
+        }
+
     }
     
     
