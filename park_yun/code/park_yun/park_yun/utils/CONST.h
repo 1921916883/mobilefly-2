@@ -24,6 +24,7 @@
 #define kHttpDomain @"http://121.40.205.111:8080/park_service"
 //小朱
 //#define kHttpDomain @"http://192.168.110.155:8080/park_service"
+
 #pragma mark-------车辆预约------------------------------------------------------------------------
 //地锁列表数据
 #define getLockList_API @"/member/getLockList.json"

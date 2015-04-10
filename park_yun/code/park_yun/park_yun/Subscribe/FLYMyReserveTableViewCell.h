@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "FLYLockFixModel.h"
+//自定义代理
+@protocol ReserveDelegate <NSObject>
+@optional
+//操作地锁
+- (void)optLock:(FLYLockFixModel *)fixModel;
+@end
 
 @interface FLYMyReserveTableViewCell : UITableViewCell
 
@@ -16,7 +22,12 @@
 @property (weak, nonatomic) IBOutlet UIButton *mainBtn;
 @property (weak, nonatomic) IBOutlet UILabel *residueTime;
 @property (weak, nonatomic) IBOutlet UILabel *money;
+@property (weak, nonatomic) IBOutlet UILabel *lockCode;
 
 @property(nonatomic,strong) FLYLockFixModel *fixModel;
+
+@property(assign,nonatomic)id<ReserveDelegate> lockDelegate;
+
+- (IBAction)lockBtnClick:(id)sender;
 
 @end

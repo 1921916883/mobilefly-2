@@ -6,6 +6,7 @@
 //  Copyright (c) 2015年 无线飞翔. All rights reserved.
 //
 #define SpColor Color(220, 220, 220, 1)
+#define provinceColor Color(130, 130, 130, 1)
 #import "FLYSubscribeVC.h"
 #import "FLYDBUtil.h"
 #import "FLYRegionModel.h"
@@ -102,23 +103,24 @@
     
     
     //省份
-    provinceLab =[[UILabel alloc]initWithFrame:CGRectMake(15, 15, ((ScreenWidth-20)/2)/2, 40)];
+    provinceLab =[[UILabel alloc]initWithFrame:CGRectMake(15, 0, ((ScreenWidth-20)/2)/2, 39)];
     provinceLab.text =@"请选择省份";
+    provinceLab.textColor =provinceColor;
     provinceLab.font =[UIFont systemFontOfSize:14];
     provinceLab.textAlignment =NSTextAlignmentLeft;
     provinceLab.userInteractionEnabled =YES;
     [self.view addSubview:provinceLab];
     
+    UIView *provinceLineView =[[UIView alloc]initWithFrame:CGRectMake(0, provinceLab.frame.origin.y+provinceLab.frame.size.height, ScreenWidth, 1)];
+    provinceLineView.backgroundColor =Color(187, 187, 186, 1);
+    [self.view addSubview:provinceLineView];
     
-    UIImageView *provinceView =[[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth-20-25, 33, 15, 10)];
+    UIImageView *provinceView =[[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth-20-25, 17, 15, 10)];
     provinceView .image =[UIImage imageNamed:@"mfpparking_xzcsxia_all_0"];
     provinceView.userInteractionEnabled =YES;
     [self.view addSubview:provinceView];
     
     provinceBtn =[[UIButton alloc]initWithFrame:CGRectMake(provinceLab.frame.origin.x-10, provinceLab.frame.origin.y, ScreenWidth-10, 40)];
-    provinceBtn.layer.borderWidth =1;
-    provinceBtn.layer.borderColor=[UIColor colorWithRed:93/255.0 green:109/255.0 blue:113/255.0 alpha:1].CGColor;
-    provinceBtn.layer.cornerRadius=5;
     [provinceBtn addTarget:self action:@selector(provinceBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     
     
@@ -126,70 +128,72 @@
     
     
     //城市
-    cityLab =[[UILabel alloc]initWithFrame:CGRectMake(15, provinceLab.frame.origin.y+provinceLab.frame.size.height+15, ((ScreenWidth-20)/2)/2,40)];
+    cityLab =[[UILabel alloc]initWithFrame:CGRectMake(15, provinceLab.frame.origin.y+provinceLab.frame.size.height, ((ScreenWidth-20)/2)/2,40)];
     cityLab.text =@"请选择城市";
+     cityLab.textColor =provinceColor;
     cityLab.font =[UIFont systemFontOfSize:14];
     cityLab.textAlignment =NSTextAlignmentLeft;
     cityLab.userInteractionEnabled =YES;
     [self.view addSubview:cityLab];
     
+    UIView *cityLineView =[[UIView alloc]initWithFrame:CGRectMake(0, cityLab.frame.origin.y+cityLab.frame.size.height, ScreenWidth, 1)];
+    cityLineView.backgroundColor =Color(187, 187, 186, 1);
+    [self.view addSubview:cityLineView];
+
     
-    UIImageView *cityView =[[UIImageView alloc]initWithFrame:CGRectMake(cityLab.frame.origin.x+cityLab.frame.size.width, provinceLab.frame.origin.y+provinceLab.frame.size.height+33, 15, 10)];
+    UIImageView *cityView =[[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth-20-25, provinceLab.frame.origin.y+provinceLab.frame.size.height+17, 15, 10)];
     cityView .image =[UIImage imageNamed:@"mfpparking_xzcsxia_all_0"];
     cityView.userInteractionEnabled =YES;
     [self.view addSubview:cityView];
     
-    cityBtn =[[UIButton alloc]initWithFrame:CGRectMake(cityLab.frame.origin.x-10, cityLab.frame.origin.y, cityLab.frame.size.width+cityView.frame.size.width+20, 40)];
-    cityBtn.layer.borderWidth =1;
-    cityBtn.layer.borderColor=[UIColor colorWithRed:93/255.0 green:109/255.0 blue:113/255.0 alpha:1].CGColor;
-    cityBtn.layer.cornerRadius=5;
+    cityBtn =[[UIButton alloc]initWithFrame:CGRectMake(0, cityLab.frame.origin.y, ScreenWidth, 40)];
     [cityBtn addTarget:self action:@selector(cityBtn:) forControlEvents:UIControlEventTouchUpInside];
-    
     [self.view addSubview:cityBtn];
 
     
     //请选择区域
-    areaLab =[[UILabel alloc]initWithFrame:CGRectMake(cityBtn.frame.origin.x+cityBtn.frame.size.width+20, cityBtn.frame.origin.y, ((ScreenWidth-20)/2)/2+10, 40)];
+    areaLab =[[UILabel alloc]initWithFrame:CGRectMake(15, cityBtn.frame.origin.y+cityBtn.frame.size.height, ScreenWidth/2, 40)];
     areaLab.text =@"请选择区域";
+     areaLab.textColor =provinceColor;
     areaLab.font =[UIFont systemFontOfSize:14];
     areaLab.textAlignment =NSTextAlignmentLeft;
     areaLab.userInteractionEnabled =YES;
     [self.view addSubview:areaLab];
+    UIView *areaLineView =[[UIView alloc]initWithFrame:CGRectMake(0, areaLab.frame.origin.y+areaLab.frame.size.height, ScreenWidth, 1)];
+    areaLineView.backgroundColor =Color(187, 187, 186, 1);
+    [self.view addSubview:areaLineView];
+
     
-    
-    UIImageView *areaView =[[UIImageView alloc]initWithFrame:CGRectMake(provinceView.frame.origin.x, cityView.frame.origin.y, 15, 10)];
+    UIImageView *areaView =[[UIImageView alloc]initWithFrame:CGRectMake(provinceView.frame.origin.x, areaLab.frame.origin.y+17, 15, 10)];
     areaView .image =[UIImage imageNamed:@"mfpparking_xzcsxia_all_0"];
     areaView.userInteractionEnabled =YES;
     [self.view addSubview:areaView];
     
-    areaBtn =[[UIButton alloc]initWithFrame:CGRectMake(areaLab.frame.origin.x-10, cityBtn.frame.origin.y, ScreenWidth-10-cityBtn.frame.size.width-10, 40)];
-    areaBtn.layer.borderWidth =1;
-    areaBtn.layer.borderColor=[UIColor colorWithRed:93/255.0 green:109/255.0 blue:113/255.0 alpha:1].CGColor;
-    areaBtn.layer.cornerRadius=5;
-    //areaBtn.backgroundColor =[UIColor redColor];
+    areaBtn =[[UIButton alloc]initWithFrame:CGRectMake(areaLab.frame.origin.x-10, areaLab.frame.origin.y,ScreenWidth, 40)];
     [areaBtn addTarget:self action:@selector(areaBtn:) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:areaBtn];
     
 
     //请选择停车场
-    stopLab =[[UILabel alloc]initWithFrame:CGRectMake(15, cityBtn.frame.origin.y+cityBtn.frame.size.height+15, ((ScreenWidth-20)/2)/2+100, 40)];
+    stopLab =[[UILabel alloc]initWithFrame:CGRectMake(15, areaLab.frame.origin.y+areaLab.frame.size.height, ScreenWidth/2, 40)];
     stopLab.text =@"请选择停车场";
+     stopLab.textColor =provinceColor;
     stopLab.font =[UIFont systemFontOfSize:14];
     stopLab.textAlignment =NSTextAlignmentLeft;
     stopLab.userInteractionEnabled =YES;
     [self.view addSubview:stopLab];
     
+    UIView *stopLineView =[[UIView alloc]initWithFrame:CGRectMake(0, stopLab.frame.origin.y+stopLab.frame.size.height, ScreenWidth, 1)];
+    stopLineView.backgroundColor =Color(187, 187, 186, 1);
+    [self.view addSubview:stopLineView];
     
-    UIImageView *stopView =[[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth-20-25, stopLab.frame.origin.y+20, 15, 10)];
+    UIImageView *stopView =[[UIImageView alloc]initWithFrame:CGRectMake(ScreenWidth-20-25, stopLab.frame.origin.y+17, 15, 10)];
     stopView .image =[UIImage imageNamed:@"mfpparking_xzcsxia_all_0"];
     stopView.userInteractionEnabled =YES;
     [self.view addSubview:stopView];
     
     stopBtn =[[UIButton alloc]initWithFrame:CGRectMake(stopLab.frame.origin.x-10, stopLab.frame.origin.y, ScreenWidth-10, 40)];
-    stopBtn.layer.borderWidth =1;
-    stopBtn.layer.borderColor=[UIColor colorWithRed:93/255.0 green:109/255.0 blue:113/255.0 alpha:1].CGColor;
-    stopBtn.layer.cornerRadius=5;
     [stopBtn addTarget:self action:@selector(stopBtn:) forControlEvents:UIControlEventTouchUpInside];
     //stopBtn.backgroundColor =[UIColor redColor];
     [self.view addSubview:stopBtn];
@@ -220,6 +224,9 @@
     if([FLYBaseUtil isNotEmpty:_provinceId]){
         NSMutableArray *list = [FLYDBUtil queryRegionOfCity:_provinceId];
         [self showPicker:list];
+    }else{
+    
+        [self showToast:@"省份不能为空"];
     }
     NSLog(@"点击选择城市");
     
@@ -232,8 +239,11 @@
     if([FLYBaseUtil isNotEmpty:_cityId]){
         NSMutableArray *list = [FLYDBUtil queryRegionOfArea:_cityId];
         [self showPicker:list];
+    }else
+    {
+        [self showToast:@"城市不能为空"];
     }
-
+   
     NSLog(@"点击选择区域");
 }
 -(void)stopBtn:(UIButton *)sender
@@ -253,11 +263,13 @@
             }else
             {
                 [self showParkPicker:self.parkList];
-                
             }
         }
+    }else
+    {
+    [self showToast:@"区域不能为空"];
     }
-
+   
     NSLog(@"点击选择停车场");
     
 }
@@ -583,7 +595,7 @@
     [mainView addSubview:priceLB];
     
     moneyLB=[[UILabel alloc]initWithFrame:CGRectMake(ScreenWidth-120, priceLB.frame.origin.y, 110, 20)];
-    moneyLB.text=[NSString stringWithFormat:@"¥%d",[[[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"][0]objectForKey:@"appointPrice"] intValue]/100];
+    moneyLB.text=[NSString stringWithFormat:@"¥%d.00",[[[[queryAppointmentListDataDic objectForKey:@"result"]objectForKey:@"appointList"][0]objectForKey:@"appointPrice"] intValue]/100];
     moneyLB.textColor=[UIColor orangeColor];
     moneyLB.textAlignment=NSTextAlignmentRight;
     moneyLB.font=[UIFont systemFontOfSize:13];
@@ -759,8 +771,8 @@
          if ([statusStr isEqualToString:@"0"])
          {
              NSLog(@"请求成功");
-              [self showToast:@"立即预定成功"];
-             [self.navigationController popViewControllerAnimated:YES];
+             [self showToast:@"预约成功"];
+       [self.navigationController popViewControllerAnimated:YES];
 //             [self switchLock];
          }else
          {
